@@ -78,7 +78,18 @@ def create_image():
             random.randint(-shape_size, cover_size[0]),
             random.randint(-shape_size, cover_size[1]),
         )
-        shape_rotation = random.randint(*shape_rotation_range)
+        shape_rotation = int(
+            random.choice(
+                [
+                    shape_rotation_range[0],
+                    shape_rotation_range[0]
+                    + (shape_rotation_range[1] - shape_rotation_range[0]) / 3,
+                    shape_rotation_range[0]
+                    + (shape_rotation_range[1] - shape_rotation_range[0]) / 3 * 2,
+                    shape_rotation_range[1],
+                ]
+            )
+        )
 
         if shape == "circle":
             draw_circle(image, shape_position, shape_size, shape_rotation, shape_color)
