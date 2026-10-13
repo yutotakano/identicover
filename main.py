@@ -277,7 +277,7 @@ def draw_circle(
 ):
     draw = ImageDraw.Draw(image, "RGBA")
 
-    draw.circle(position, size, fill=color, outline=None)
+    draw.circle(position, size / 2, fill=color, outline=None)
 
 
 def draw_square(
