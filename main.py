@@ -75,7 +75,7 @@ def create_image():
     def hue_range(hue: float) -> tuple[float, float]:
         return (max(0, min(360, hue - 10)), max(0, min(360, hue + 10)))
 
-    shape = random.choice(["circle", "square", "triangle", "cross"])
+    shape = random.choice(["circle", "square", "triangle", "cross", "semicircle"])
     shape_size_base = 10 * dpi / 25.4
     shape_count_range = (20, 30)
     shape_rotation_range = (0, random.randint(0, 360))
@@ -326,6 +326,16 @@ def create_image():
                 shape_color_alpha if use_outline else None,
                 outline_width,
             )
+        elif shape == "semicircle":
+            draw_semicircle(
+                image,
+                shape_position,
+                shape_size,
+                shape_rotation,
+                None if use_outline else shape_color_alpha,
+                shape_color_alpha if use_outline else None,
+                outline_width,
+            )
 
     return image
 
@@ -460,6 +470,36 @@ def draw_cross(
 
     draw.polygon(
         transformed_points.tolist(), fill=color, outline=outline, width=outline_width
+    )
+
+
+def draw_semicircle(
+    image: Image.Image,
+    position: tuple[float, float],
+    size: float,
+    rotation: int,
+    color: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline_width: int,
+):
+    draw = ImageDraw.Draw(image, "RGBA")
+
+    # Calculate the bounding box for the semicircle
+    bbox = [
+        position[0] - size / 2,
+        position[1] - size / 2,
+        position[0] + size / 2,
+        position[1] + size / 2,
+    ]
+
+    # Draw the semicircle (180 degrees)
+    draw.pieslice(
+        bbox,
+        start=rotation - 90,
+        end=rotation + 90,
+        fill=color,
+        outline=outline,
+        width=outline_width,
     )
 
 
