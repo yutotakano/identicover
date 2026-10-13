@@ -95,7 +95,7 @@ def create_image():
     ]
 
     shape_sizes += [
-        int(random.uniform(shape_size_base * 4, shape_size_base * 5))
+        int(random.uniform(shape_size_base * 6, shape_size_base * 7))
         for _ in range(shape_count - len(shape_sizes))  # rest
     ]
 
