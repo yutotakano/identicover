@@ -31,7 +31,7 @@ def create_image():
 
     shape = random.choice(["circle", "square", "triangle"])
     shape_size_base = 10 * dpi / 25.4
-    shape_count_range = (10, 20)
+    shape_count_range = (10, 15)
     shape_rotation_range = (0, random.randint(0, 360))
 
     image = Image.new("RGB", cover_size, color=(255, 255, 255))
