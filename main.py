@@ -115,12 +115,18 @@ def create_image():
                 math.cos(math.radians(gradient_angle)),
                 math.sin(math.radians(gradient_angle)),
             )
-            affectedness = get_gradient_coeff(shape_position[0], shape_position[1])
+            affectedness = (
+                2 * get_gradient_coeff(shape_position[0], shape_position[1]) - 1
+            )
             shape_position = (
                 shape_position[0]
-                + gradient_dir[0] * (cover_size[0] - shape_position[0]) * affectedness,
+                + gradient_dir[0]
+                * affectedness
+                * max_height_from_perpendicular_line_to_any_corner,
                 shape_position[1]
-                + gradient_dir[1] * (cover_size[1] - shape_position[1]) * affectedness,
+                + gradient_dir[1]
+                * affectedness
+                * max_height_from_perpendicular_line_to_any_corner,
             )
 
         shape_size *= (
