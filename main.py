@@ -1,3 +1,6 @@
+from PIL import Image
+
+
 def main():
     print("Hello from identicover!")
 
