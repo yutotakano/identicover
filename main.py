@@ -1,5 +1,6 @@
 import math
 import random
+import numpy as np
 
 from PIL import Image, ImageColor, ImageDraw
 
@@ -97,17 +98,22 @@ def draw_triangle(
 ):
     draw = ImageDraw.Draw(image)
 
-    point_1 = position
-    point_2 = (
-        position[0] + math.cos(math.radians(rotation)) * size,
-        position[1] + math.sin(math.radians(rotation)) * size,
-    )
-    point_3 = (
-        position[0] + math.cos(math.radians(rotation + 120)) * size,
-        position[1] + math.sin(math.radians(rotation + 120)) * size,
-    )
+    points: list[list[float]] = [
+        [position[0] + size / 2, position[1]],
+        [position[0], position[1] + size * math.sqrt(3) / 2],
+        [position[0] + size, position[1] + size * math.sqrt(3) / 2],
+    ]
 
-    draw.polygon([point_1, point_2, point_3], fill=color, outline=None)
+    pre_transform = np.array(points)
+    transform_matrix = np.array(
+        [
+            [math.cos(math.radians(rotation)), -math.sin(math.radians(rotation))],
+            [math.sin(math.radians(rotation)), math.cos(math.radians(rotation))],
+        ]
+    )
+    transformed_points = np.dot(pre_transform - position, transform_matrix) + position
+
+    draw.polygon(transformed_points.tolist(), fill=color, outline=None)
 
 
 if __name__ == "__main__":
