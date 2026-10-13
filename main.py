@@ -69,7 +69,7 @@ def create_image():
 
     primary_hue = random.randint(0, 360)
     shape_saturation_base = random.randint(30, 80)
-    shape_lightness_base = random.randint(30, 90)
+    shape_lightness_base = random.randint(30, 80)
     palette_style = random.choice(["analogous", "complementary", "triadic"])
 
     def hue_range(hue: float) -> tuple[float, float]:
