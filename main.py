@@ -90,7 +90,7 @@ def create_image():
 
     shape_count = random.randint(*shape_count_range)
     shape_sizes = [
-        int(random.uniform(shape_size_base * 1, shape_size_base * 1.5))
+        int(random.uniform(shape_size_base * 0.5, shape_size_base * 1.5))
         for _ in range(int(max(1, shape_count * 9 / 10)))  # 90%
     ]
 
@@ -99,14 +99,45 @@ def create_image():
         for _ in range(shape_count - len(shape_sizes))  # rest
     ]
 
+    position_distribution = random.choice(
+        [
+            "uniform",
+            "regular",
+        ]
+    )
+
     use_outline = random.choice([True, False, False])
 
-    for size in sorted(shape_sizes, reverse=True):
+    for i, size in enumerate(sorted(shape_sizes, reverse=True)):
         shape_size = size
-        shape_position = (
-            random.uniform(0, cover_size[0]),
-            random.uniform(0, cover_size[1]),
-        )
+        if position_distribution == "regular" and shape_size < shape_size_base * 2:
+            grid_size = int(math.sqrt(shape_count))
+            shape_position = [
+                (i % grid_size + 0.5) * cover_size[0] / grid_size,
+                (i // grid_size + 0.5) * cover_size[1] / grid_size,
+            ]
+            # Rotate by gradient with base at center
+            shape_position = np.dot(
+                shape_position - np.array([cover_size[0] / 2, cover_size[1] / 2]),
+                np.array(
+                    [
+                        [
+                            math.cos(math.radians(gradient_angle)),
+                            -math.sin(math.radians(gradient_angle)),
+                        ],
+                        [
+                            math.sin(math.radians(gradient_angle)),
+                            math.cos(math.radians(gradient_angle)),
+                        ],
+                    ]
+                ),
+            ) + np.array([cover_size[0] / 2, cover_size[1] / 2])
+        else:
+            shape_position = (
+                random.uniform(0, cover_size[0]),
+                random.uniform(0, cover_size[1]),
+            )
+
         if "position" in gradient_affects and size < shape_size_base * 2:
             # Resample position based on gradient coefficient:
             # if 0 not affected by gradient
