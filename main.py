@@ -64,7 +64,7 @@ def create_image():
             "shape_rotation_max",
             "alpha",
         ],
-        k=random.randint(2, 6),
+        k=random.randint(3, 7),
     )
 
     primary_hue = random.randint(0, 360)
