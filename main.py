@@ -99,6 +99,8 @@ def create_image():
         for _ in range(shape_count - len(shape_sizes))  # rest
     ]
 
+    use_outline = random.choice([True, False, False])
+
     for size in sorted(shape_sizes, reverse=True):
         shape_size = size
         shape_position = (
@@ -251,18 +253,37 @@ def create_image():
             )
 
         shape_color_alpha = (*shape_color, alpha)
+        outline_width = 4
 
         if shape == "circle":
             draw_circle(
-                image, shape_position, shape_size, shape_rotation, shape_color_alpha
+                image,
+                shape_position,
+                shape_size,
+                shape_rotation,
+                None if use_outline else shape_color_alpha,
+                shape_color_alpha if use_outline else None,
+                outline_width,
             )
         elif shape == "square":
             draw_square(
-                image, shape_position, shape_size, shape_rotation, shape_color_alpha
+                image,
+                shape_position,
+                shape_size,
+                shape_rotation,
+                None if use_outline else shape_color_alpha,
+                shape_color_alpha if use_outline else None,
+                outline_width,
             )
         elif shape == "triangle":
             draw_triangle(
-                image, shape_position, shape_size, shape_rotation, shape_color_alpha
+                image,
+                shape_position,
+                shape_size,
+                shape_rotation,
+                None if use_outline else shape_color_alpha,
+                shape_color_alpha if use_outline else None,
+                outline_width,
             )
 
     return image
@@ -273,11 +294,13 @@ def draw_circle(
     position: tuple[float, float],
     size: float,
     _rotation: int,
-    color: tuple[int, int, int] | tuple[int, int, int, int],
+    color: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline_width: int,
 ):
     draw = ImageDraw.Draw(image, "RGBA")
 
-    draw.circle(position, size / 2, fill=color, outline=None)
+    draw.circle(position, size / 2, fill=color, outline=outline, width=outline_width)
 
 
 def draw_square(
@@ -285,7 +308,9 @@ def draw_square(
     position: tuple[float, float],
     size: float,
     rotation: int,
-    color: tuple[int, int, int] | tuple[int, int, int, int],
+    color: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline_width: int,
 ):
     draw = ImageDraw.Draw(image, "RGBA")
 
@@ -307,7 +332,8 @@ def draw_square(
     draw.polygon(
         transformed_points.tolist(),
         fill=color,
-        outline=None,
+        outline=outline,
+        width=outline_width,
     )
 
 
@@ -316,7 +342,9 @@ def draw_triangle(
     position: tuple[float, float],
     size: float,
     rotation: int,
-    color: tuple[int, int, int] | tuple[int, int, int, int],
+    color: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline_width: int,
 ):
     draw = ImageDraw.Draw(image, "RGBA")
 
@@ -335,7 +363,9 @@ def draw_triangle(
     )
     transformed_points = np.dot(pre_transform - position, transform_matrix) + position
 
-    draw.polygon(transformed_points.tolist(), fill=color, outline=None)
+    draw.polygon(
+        transformed_points.tolist(), fill=color, outline=outline, width=outline_width
+    )
 
 
 if __name__ == "__main__":
