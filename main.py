@@ -22,7 +22,7 @@ def main():
 
 def create_image():
     primary_hue = random.randint(0, 360)
-    shape_saturation_base = random.randint(50, 90)
+    shape_saturation_base = random.randint(50, 80)
     shape_lightness_base = random.randint(30, 90)
     palette_style = random.choice(["analogous", "complementary", "triadic"])
 
