@@ -11,7 +11,7 @@ cover_size = (math.ceil(105 * dpi / 25.4), math.ceil(148 * dpi / 25.4))
 primary_hue = random.randint(0, 360)
 hue_range = (primary_hue - 10, primary_hue + 10)
 shape = random.choice(["circle", "square", "triangle"])
-shape_size_range = (30, 400)
+shape_size_base = 200
 shape_count_range = (10, 60)
 shape_rotation_range = (0, random.randint(0, 360))
 
@@ -19,12 +19,12 @@ shape_rotation_range = (0, random.randint(0, 360))
 def main():
     image = Image.new("RGB", cover_size, color=(255, 255, 255))
 
-    background_color = ImageColor.getrgb(f"hsl({primary_hue}, 60%, 98%)")
+    background_color = ImageColor.getrgb(f"hsl({primary_hue}, 60%, 96%)")
     draw = ImageDraw.Draw(image)
     draw.rectangle([0, 0, cover_size[0], cover_size[1]], fill=background_color)
 
     for _ in range(random.randint(*shape_count_range)):
-        shape_size = random.randint(*shape_size_range)
+        shape_size = int(random.expovariate(1.0 / shape_size_base))
         shape_hue = random.randint(*hue_range)
         shape_saturation = random.randint(40, 60)
         shape_lightness = random.randint(70, 90)
