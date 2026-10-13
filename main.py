@@ -83,7 +83,7 @@ def create_image():
     image = Image.new("RGB", cover_size, color=(255, 255, 255))
 
     background_color = ImageColor.getrgb(
-        f"hsl({primary_hue}, {shape_saturation_base}%, {96 if shape_lightness_base > 70 else random.choice([8, 96])}%)"
+        f"hsl({primary_hue}, {shape_saturation_base}%, {96 if shape_lightness_base > 70 else random.choice([13, 96])}%)"
     )
     draw = ImageDraw.Draw(image)
     draw.rectangle([0, 0, cover_size[0], cover_size[1]], fill=background_color)
