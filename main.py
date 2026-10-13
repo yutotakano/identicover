@@ -24,21 +24,35 @@ def create_image():
     gradient_angle = random.randint(0, 360)
     gradient_start_coeff = 0
     gradient_end_coeff = 1
+    gradient_perpendicular_rad = math.radians((gradient_angle + 90) % 360)
+    center = (cover_size[0] / 2, cover_size[1] / 2)
+    max_height_from_perpendicular_line_to_any_corner = max(
+        [
+            abs(
+                math.cos(gradient_perpendicular_rad) * (center[1] - corner[1])
+                - math.sin(gradient_perpendicular_rad) * (center[0] - corner[0])
+            )
+            for corner in [
+                (0, 0),
+                (cover_size[0], 0),
+                (cover_size[0], cover_size[1]),
+                (0, cover_size[1]),
+            ]
+        ]
+    )
 
     def get_gradient_coeff(x: float, y: float) -> float:
         # Simple linear gradient from start->end coeffs across the image based on the angle
         # It should be min start, max end
-        # Convert angle to radians
-        angle_rad = math.radians(gradient_angle)
-        gradient_vector = (math.cos(angle_rad), math.sin(angle_rad))
-        # Calculate the position of the point in the gradient direction
-        position = x * gradient_vector[0] + y * gradient_vector[1]
-        # Normalize the position to a 0-1 range based on the image size
-        max_position = (
-            cover_size[0] * gradient_vector[0] + cover_size[1] * gradient_vector[1]
-        )
-        coeff = (position - 0) / (max_position - 0)
-        return max(gradient_start_coeff, min(gradient_end_coeff, coeff))
+        height = math.cos(gradient_perpendicular_rad) * (center[1] - y) - math.sin(
+            gradient_perpendicular_rad
+        ) * (center[0] - x)
+        # Normalize against maximum possible distance and into [0,1] range
+        coeff = (height / max_height_from_perpendicular_line_to_any_corner + 1) / 2
+        coeff = (
+            gradient_end_coeff - gradient_start_coeff
+        ) * coeff + gradient_start_coeff
+        return max(0, min(1, coeff))
 
     gradient_affects = random.choices(
         [
