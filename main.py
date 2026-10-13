@@ -69,21 +69,23 @@ def draw_square(
 ):
     draw = ImageDraw.Draw(image)
 
-    top_left = position[0]
-    top_right = math.cos(math.radians(rotation)) * size + position[0]
-    bottom_left = math.sin(math.radians(rotation)) * size + position[1]
-    bottom_right = (
-        math.cos(math.radians(rotation)) * size + position[0],
-        math.sin(math.radians(rotation)) * size + position[1],
+    points = [
+        [position[0], position[1]],
+        [position[0] + size, position[1]],
+        [position[0] + size, position[1] + size],
+        [position[0], position[1] + size],
+    ]
+    pre_transform = np.array(points)
+    transform_matrix = np.array(
+        [
+            [math.cos(math.radians(rotation)), -math.sin(math.radians(rotation))],
+            [math.sin(math.radians(rotation)), math.cos(math.radians(rotation))],
+        ]
     )
+    transformed_points = np.dot(pre_transform - position, transform_matrix) + position
 
     draw.polygon(
-        [
-            (top_left, position[1]),
-            (top_right, position[1]),
-            bottom_right,
-            (position[0], bottom_left),
-        ],
+        transformed_points.tolist(),
         fill=color,
         outline=None,
     )
