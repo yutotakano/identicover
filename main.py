@@ -1,12 +1,12 @@
 import math
 import random
+import sys
 
 import numpy as np
 from PIL import Image, ImageColor, ImageDraw
 
 dpi = 72
 cover_size = (math.ceil(105 * dpi / 25.4), math.ceil(148 * dpi / 25.4))
-# random.seed(42)
 
 
 def main():
@@ -107,6 +107,7 @@ def create_image():
     )
 
     use_outline = random.choice([True, False, False])
+    use_connection_lines = False if use_outline else random.choice([True, False, False])
 
     for i, size in enumerate(sorted(shape_sizes, reverse=True)):
         shape_size = size
@@ -504,4 +505,10 @@ def draw_semicircle(
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1:
+        # Title was provided, use that as the seed for reproducibility
+        random.seed(sys.argv[1])
+        image = create_image()
+        image.show()
+    else:
+        main()
