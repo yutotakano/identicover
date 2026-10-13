@@ -75,7 +75,7 @@ def create_image():
     def hue_range(hue: float) -> tuple[float, float]:
         return (max(0, min(360, hue - 10)), max(0, min(360, hue + 10)))
 
-    shape = random.choice(["circle", "square", "triangle"])
+    shape = random.choice(["circle", "square", "triangle", "cross"])
     shape_size_base = 10 * dpi / 25.4
     shape_count_range = (20, 30)
     shape_rotation_range = (0, random.randint(0, 360))
@@ -316,6 +316,16 @@ def create_image():
                 shape_color_alpha if use_outline else None,
                 outline_width,
             )
+        elif shape == "cross":
+            draw_cross(
+                image,
+                shape_position,
+                shape_size,
+                shape_rotation,
+                None if use_outline else shape_color_alpha,
+                shape_color_alpha if use_outline else None,
+                outline_width,
+            )
 
     return image
 
@@ -383,6 +393,60 @@ def draw_triangle(
         [position[0] + size / 2, position[1]],
         [position[0], position[1] + size * math.sqrt(3) / 2],
         [position[0] + size, position[1] + size * math.sqrt(3) / 2],
+    ]
+
+    pre_transform = np.array(points)
+    transform_matrix = np.array(
+        [
+            [math.cos(math.radians(rotation)), -math.sin(math.radians(rotation))],
+            [math.sin(math.radians(rotation)), math.cos(math.radians(rotation))],
+        ]
+    )
+    transformed_points = np.dot(pre_transform - position, transform_matrix) + position
+
+    draw.polygon(
+        transformed_points.tolist(), fill=color, outline=outline, width=outline_width
+    )
+
+
+def draw_cross(
+    image: Image.Image,
+    position: tuple[float, float],
+    size: float,
+    rotation: int,
+    color: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline: tuple[int, int, int] | tuple[int, int, int, int] | None,
+    outline_width: int,
+):
+    cross_width = size / 4
+    half_cross_width = cross_width / 2
+    draw = ImageDraw.Draw(image, "RGBA")
+
+    points: list[list[float]] = [
+        [position[0] + size / 2 - half_cross_width, position[1]],
+        [position[0] + size / 2 + half_cross_width, position[1]],
+        [
+            position[0] + size / 2 + half_cross_width,
+            position[1] + size / 2 - half_cross_width,
+        ],
+        [position[0] + size, position[1] + size / 2 - half_cross_width],
+        [position[0] + size, position[1] + size / 2 + half_cross_width],
+        [
+            position[0] + size / 2 + half_cross_width,
+            position[1] + size / 2 + half_cross_width,
+        ],
+        [position[0] + size / 2 + half_cross_width, position[1] + size],
+        [position[0] + size / 2 - half_cross_width, position[1] + size],
+        [
+            position[0] + size / 2 - half_cross_width,
+            position[1] + size / 2 + half_cross_width,
+        ],
+        [position[0], position[1] + size / 2 + half_cross_width],
+        [position[0], position[1] + size / 2 - half_cross_width],
+        [
+            position[0] + size / 2 - half_cross_width,
+            position[1] + size / 2 - half_cross_width,
+        ],
     ]
 
     pre_transform = np.array(points)
