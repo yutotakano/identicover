@@ -22,6 +22,8 @@ def main():
 
 def create_image():
     primary_hue = random.randint(0, 360)
+    shape_saturation_base = random.randint(50, 90)
+    shape_lightness_base = random.randint(30, 90)
     palette_style = random.choice(["analogous", "complementary", "triadic"])
 
     def hue_range(hue: int) -> tuple[int, int]:
@@ -61,8 +63,12 @@ def create_image():
         else:
             shape_hue = hue_range(primary_hue)
 
-        shape_saturation = random.randint(40, 60)
-        shape_lightness = random.randint(70, 90)
+        shape_saturation = random.randint(
+            shape_saturation_base - 10, shape_saturation_base + 10
+        )
+        shape_lightness = random.randint(
+            shape_lightness_base - 10, shape_lightness_base + 10
+        )
         shape_color = ImageColor.getrgb(
             f"hsl({shape_hue}, {shape_saturation}%, {shape_lightness}%)"
         )
