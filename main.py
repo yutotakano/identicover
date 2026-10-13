@@ -284,7 +284,7 @@ def create_image():
             )
 
         shape_color_alpha = (*shape_color, alpha)
-        outline_width = 4
+        outline_width = int(1 * dpi / 25.4)
 
         if shape == "circle":
             draw_circle(
