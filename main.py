@@ -586,6 +586,10 @@ def draw_title(
         w = min(cover_size[0] * 0.8, (cover_size[1] * 0.4) / h_to_w_ratio)
         h = w * h_to_w_ratio
         fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", h)
+        # remeasure bbox for accuracy since font size != guaranteed text height
+        text_bbox = fnt.getbbox(title, direction="ltr", language="ja")
+        h = text_bbox[3] - text_bbox[1]
+        w = text_bbox[2] - text_bbox[0]
         padding = 2 * dpi / 25.4
 
         if box_position == "box_position_1":
@@ -614,7 +618,8 @@ def draw_title(
             ]
         draw.rectangle(box, fill=box_color)
         draw.text(
-            (box[0][0] + padding, box[0][1] + padding),
+            # Subtract text_bbox offset since ink != position
+            (box[0][0] + padding - text_bbox[0], box[0][1] + padding - text_bbox[1]),
             title,
             font=fnt,
             fill=(255, 255, 255) if is_dark else (0, 0, 0),
@@ -629,6 +634,10 @@ def draw_title(
         h = min(cover_size[1] * 0.8, (cover_size[0] * 0.2) * h_to_w_ratio)
         w = h / h_to_w_ratio
         fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", w)
+        # remeasure bbox for accuracy since font size != guaranteed text width
+        text_bbox = fnt.getbbox(title, direction="ttb", language="ja")
+        h = text_bbox[3] - text_bbox[1]
+        w = text_bbox[2] - text_bbox[0]
         padding = 2 * dpi / 25.4
 
         if box_position == "box_position_1":
@@ -657,7 +666,8 @@ def draw_title(
             ]
         draw.rectangle(box, fill=box_color)
         draw.text(
-            (box[0][0] + padding, box[0][1] + padding),
+            # Subtract text_bbox offset since ink != position
+            (box[0][0] + padding - text_bbox[0], box[0][1] + padding - text_bbox[1]),
             title,
             font=fnt,
             fill=(255, 255, 255) if is_dark else (0, 0, 0),
