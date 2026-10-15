@@ -687,7 +687,7 @@ def draw_title(
             # Left aligned, bottom third
             box = [
                 (
-                    padding,
+                    0.0,
                     min(
                         cover_size[1] - h - 2 * padding,
                         cover_size[1] * 0.8 - h * 0.5 - padding,
