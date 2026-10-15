@@ -585,7 +585,7 @@ def draw_title(
         h_to_w_ratio = (text_bbox[3] - text_bbox[1]) / (text_bbox[2] - text_bbox[0])
         w = min(cover_size[0] * 0.8, (cover_size[1] * 0.4) / h_to_w_ratio)
         h = w * h_to_w_ratio
-        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", int(h))
+        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", h)
         padding = 2 * dpi / 25.4
 
         if box_position == "box_position_1":
@@ -628,7 +628,7 @@ def draw_title(
         h_to_w_ratio = (text_bbox[3] - text_bbox[1]) / (text_bbox[2] - text_bbox[0])
         h = min(cover_size[1] * 0.8, (cover_size[0] * 0.2) * h_to_w_ratio)
         w = h / h_to_w_ratio
-        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", int(w))
+        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", w)
         padding = 2 * dpi / 25.4
 
         if box_position == "box_position_1":
