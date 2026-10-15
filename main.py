@@ -569,7 +569,7 @@ def get_first_japanese_noun(title: str) -> str | None:
     can_use_nagisa = contains_only_japanese(title)
 
     if not can_use_nagisa:
-        return title
+        return textwrap.fill(title, width=15)
 
     try:
         import nagisa  # type: ignore
@@ -609,8 +609,6 @@ def draw_title(
         if contains_japanese(title)
         else "./assets/DINish-Bold.ttf"
     )
-
-    title = textwrap.fill(title, width=15)
 
     box_color = ImageColor.getrgb(
         f"hsl({background_color_hsl[0]}, {max(0, background_color_hsl[1] - 20)}%, {background_color_hsl[2]}%)"
