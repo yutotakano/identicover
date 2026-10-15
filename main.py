@@ -4,10 +4,10 @@ import random
 import re
 import sys
 import typing
+import unicodedata
 
 import numpy as np
 from PIL import Image, ImageColor, ImageDraw, ImageFont, features
-import unicodedata
 
 dpi = 72
 cover_size = (math.ceil(105 * dpi / 25.4), math.ceil(148 * dpi / 25.4))
