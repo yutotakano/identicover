@@ -23,6 +23,7 @@ Randomised Parameters:
 - Shape count
 - Gradient direction
 - Amount of other parameters affected by gradient
+- Text location and orientation if title is supplied
 
 ## License
 
