@@ -602,6 +602,9 @@ def draw_title(
     )
 
     is_dark = background_color_hsl[2] < 50
+    text_color = ImageColor.getrgb(
+        f"hsl({background_color_hsl[0]}, {background_color_hsl[1]}%, {93 if is_dark else 7}%)"
+    )
 
     draw = ImageDraw.Draw(image, "RGBA")
 
@@ -661,7 +664,7 @@ def draw_title(
             (box[0][0] + padding - text_bbox[0], box[0][1] + padding - text_bbox[1]),
             title,
             font=fnt,
-            fill=(255, 255, 255) if is_dark else (0, 0, 0),
+            fill=text_color,
             align="center",
             direction="ltr",
         )
@@ -715,7 +718,7 @@ def draw_title(
             (box[0][0] + padding - text_bbox[0], box[0][1] + padding - text_bbox[1]),
             title,
             font=fnt,
-            fill=(255, 255, 255) if is_dark else (0, 0, 0),
+            fill=text_color,
             align="left",
             direction="ttb",
         )
