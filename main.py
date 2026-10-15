@@ -1,9 +1,12 @@
+import itertools
 import math
 import random
+import re
 import sys
+import typing
 
 import numpy as np
-from PIL import Image, ImageColor, ImageDraw
+from PIL import Image, ImageColor, ImageDraw, ImageFont, features
 
 dpi = 72
 cover_size = (math.ceil(105 * dpi / 25.4), math.ceil(148 * dpi / 25.4))
@@ -20,7 +23,7 @@ def main():
     image.show()
 
 
-def create_image():
+def create_image(short_title: str | None = None) -> Image.Image:
     gradient_angle = random.randint(0, 360)
     gradient_start_coeff = 0
     gradient_end_coeff = 1
@@ -82,8 +85,13 @@ def create_image():
 
     image = Image.new("RGB", cover_size, color=(255, 255, 255))
 
+    background_color_hsl = (
+        primary_hue,
+        shape_saturation_base,
+        92 if shape_lightness_base > 70 else random.choice([13, 92]),
+    )
     background_color = ImageColor.getrgb(
-        f"hsl({primary_hue}, {shape_saturation_base}%, {92 if shape_lightness_base > 70 else random.choice([13, 92])}%)"
+        f"hsl({background_color_hsl[0]}, {background_color_hsl[1]}%, {background_color_hsl[2]}%)"
     )
     draw = ImageDraw.Draw(image)
     draw.rectangle([0, 0, cover_size[0], cover_size[1]], fill=background_color)
@@ -107,7 +115,6 @@ def create_image():
     )
 
     use_outline = random.choice([True, False, False])
-    use_connection_lines = False if use_outline else random.choice([True, False, False])
 
     for i, size in enumerate(sorted(shape_sizes, reverse=True)):
         shape_size = size
@@ -338,6 +345,21 @@ def create_image():
                 outline_width,
             )
 
+    # If title was provided, lay it out in a box
+    if not short_title:
+        return image
+
+    title_orientation = random.choice(["horizontal", "vertical"])
+    box_position = random.choice(["box_position_1", "box_position_2"])
+
+    draw_title(
+        image,
+        short_title,
+        title_orientation,
+        box_position,
+        background_color_hsl,
+    )
+
     return image
 
 
@@ -504,11 +526,97 @@ def draw_semicircle(
     )
 
 
+def get_first_japanese_noun(title: str) -> str | None:
+    try:
+        import nagisa  # type: ignore
+    except ImportError:
+        return None
+
+    # Ignore things in brackets like 【】
+    title = re.sub(r"【.*?】", "", title)
+
+    tagged = nagisa.tagging(title)  # type: ignore
+    tagged_words: list[str] = typing.cast(list[str], tagged.words)  # type: ignore
+    tagged_postags: list[str] = typing.cast(list[str], tagged.postags)  # type: ignore
+    return "".join(
+        res[0]
+        for res in itertools.takewhile(
+            lambda res: res[1] == "名詞",
+            itertools.dropwhile(
+                lambda res: res[1] != "名詞", zip(tagged_words, tagged_postags)
+            ),
+        )
+    )
+
+
+def draw_title(
+    image: Image.Image,
+    title: str,
+    orientation: str,
+    box_position: str,
+    background_color_hsl: tuple[int, int, int],
+):
+    if not features.check("raqm"):
+        print("raqm not available, skipping text")
+        return
+
+    box_color = ImageColor.getrgb(
+        f"hsl({background_color_hsl[0]}, {max(0, background_color_hsl[1] - 20)}%, {background_color_hsl[2]}%)"
+    )
+    draw = ImageDraw.Draw(image, "RGBA")
+
+    if orientation == "horizontal":
+        if box_position == "box_position_1":
+            # Top third
+            box = [
+                (cover_size[0] * 0.1, cover_size[1] * 0.1),
+                (cover_size[0] * 0.9, cover_size[1] * 0.3),
+            ]
+        else:
+            # Bottom third
+            box = [
+                (cover_size[0] * 0.1, cover_size[1] * 0.7),
+                (cover_size[0] * 0.9, cover_size[1] * 0.9),
+            ]
+        draw.rectangle(box, fill=box_color)
+        draw.text(
+            (box[0][0] + 10, box[0][1] + 10),
+            title,
+            fill=(0, 0, 0),
+            align="left",
+        )
+    else:
+        if box_position == "box_position_1":
+            # Left third
+            box = [
+                (cover_size[0] * 0.1, cover_size[1] * 0.2),
+                (cover_size[0] * 0.3, cover_size[1] * 0.8),
+            ]
+        else:
+            # Center
+            box = [
+                (cover_size[0] * 0.4, cover_size[1] * 0.2),
+                (cover_size[0] * 0.6, cover_size[1] * 0.8),
+            ]
+        draw.rectangle(box, fill=box_color)
+        fnt = ImageFont.truetype("/Users/kilo/Library/Fonts/NotoSansJP-Regular.ttf", 40)
+        draw.text(
+            (box[0][0] + 10, box[0][1] + 10),
+            title,
+            font=fnt,
+            fill=(0, 0, 0),
+            align="left",
+            direction="ttb",
+        )
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
+        first_noun = get_first_japanese_noun(sys.argv[1])
+
         # Title was provided, use that as the seed for reproducibility
         random.seed(sys.argv[1])
-        image = create_image()
+        image = create_image(first_noun)
         image.show()
     else:
         main()
