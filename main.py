@@ -578,6 +578,11 @@ def get_first_japanese_noun(title: str) -> str | None:
 
     # Ignore things in brackets like 【】
     title = re.sub(r"【.*?】", "", title)
+    title = re.sub(r"（.*?）", "", title)
+
+    if len(title) < 8:
+        # Use short titles as-is
+        return title
 
     tagged = nagisa.tagging(title)  # type: ignore
     tagged_words: list[str] = typing.cast(list[str], tagged.words)  # type: ignore
