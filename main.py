@@ -3,11 +3,11 @@ import math
 import random
 import re
 import sys
+import textwrap
 import typing
 import unicodedata
 
 import numpy as np
-import wn
 from PIL import Image, ImageColor, ImageDraw, ImageFont, features
 
 dpi = 72
@@ -560,23 +560,7 @@ def get_first_japanese_noun(title: str) -> str | None:
     can_use_nagisa = can_be_vertically_typeset(title)
 
     if not can_use_nagisa:
-        # Try to extract first set of english nouns
-        if not len(wn.lexicons()):
-            wn.download("ewn:2020")
-        return (
-            " ".join(
-                word[0].capitalize()
-                for word in itertools.takewhile(
-                    lambda w: w[1] and w[1][0].pos == "n",
-                    itertools.dropwhile(
-                        lambda w: not w[1] or w[1][0].pos != "n",
-                        zip(title.split(), [wn.words(w) for w in title.split()]),
-                    ),
-                )
-            )
-            # Fallback: allow full english title
-            or title
-        )
+        return title
 
     try:
         import nagisa  # type: ignore
@@ -611,6 +595,8 @@ def draw_title(
         print("raqm not available, skipping text")
         return
 
+    title = textwrap.fill(title, width=15)
+
     box_color = ImageColor.getrgb(
         f"hsl({background_color_hsl[0]}, {max(0, background_color_hsl[1] - 20)}%, {background_color_hsl[2]}%)"
     )
@@ -622,13 +608,19 @@ def draw_title(
     if orientation == "horizontal":
         # Measure proportions first with arbitrary size
         fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", 40)
-        text_bbox = fnt.getbbox(title, direction="ltr", language="ja")
+        text_bbox = draw.textbbox(
+            (0, 0), title, font=fnt, direction="ltr", language="ja"
+        )
         h_to_w_ratio = (text_bbox[3] - text_bbox[1]) / (text_bbox[2] - text_bbox[0])
         w = min(cover_size[0] * 0.8, (cover_size[1] * 0.4) / h_to_w_ratio)
         h = w * h_to_w_ratio
-        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", h)
+        fnt = ImageFont.truetype(
+            "./assets/HinaMincho-Regular.ttf", h / len(title.splitlines())
+        )
         # remeasure bbox for accuracy since font size != guaranteed text height
-        text_bbox = fnt.getbbox(title, direction="ltr", language="ja")
+        text_bbox = draw.textbbox(
+            (0, 0), title, font=fnt, direction="ltr", language="ja"
+        )
         h = text_bbox[3] - text_bbox[1]
         w = text_bbox[2] - text_bbox[0]
         padding = 2 * dpi / 25.4
@@ -638,11 +630,11 @@ def draw_title(
             box = [
                 (
                     (cover_size[0] - w) * 0.5 - padding,
-                    cover_size[1] * 0.2 - h * 0.5 - padding,
+                    max(0, cover_size[1] * 0.2 - h * 0.5 - padding),
                 ),
                 (
                     w + (cover_size[0] - w) * 0.5 + padding,
-                    cover_size[1] * 0.2 + h * 0.5 + padding,
+                    max(h + 2 * padding, cover_size[1] * 0.2 + h * 0.5 + padding),
                 ),
             ]
         else:
@@ -650,15 +642,21 @@ def draw_title(
             box = [
                 (
                     (cover_size[0] - w) * 0.5 - padding,
-                    cover_size[1] * 0.8 - h * 0.5 - padding,
+                    min(
+                        cover_size[1] - h - 2 * padding,
+                        cover_size[1] * 0.8 - h * 0.5 - padding,
+                    ),
                 ),
                 (
                     w + (cover_size[0] - w) * 0.5 + padding,
-                    cover_size[1] * 0.8 + h * 0.5 + padding,
+                    min(
+                        cover_size[1],
+                        cover_size[1] * 0.8 + h * 0.5 + padding,
+                    ),
                 ),
             ]
         draw.rectangle(box, fill=box_color)
-        draw.text(
+        draw.multiline_text(
             # Subtract text_bbox offset since ink != position
             (box[0][0] + padding - text_bbox[0], box[0][1] + padding - text_bbox[1]),
             title,
@@ -670,13 +668,19 @@ def draw_title(
     else:
         # Measure proportions first with arbitrary size
         fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", 40)
-        text_bbox = fnt.getbbox(title, direction="ttb", language="ja")
+        text_bbox = draw.textbbox(
+            (0, 0), title, font=fnt, direction="ttb", language="ja"
+        )
         h_to_w_ratio = (text_bbox[3] - text_bbox[1]) / (text_bbox[2] - text_bbox[0])
         h = min(cover_size[1] * 0.8, (cover_size[0] * 0.2) * h_to_w_ratio)
         w = h / h_to_w_ratio
-        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", w)
+        fnt = ImageFont.truetype(
+            "./assets/HinaMincho-Regular.ttf", w / len(title.splitlines())
+        )
         # remeasure bbox for accuracy since font size != guaranteed text width
-        text_bbox = fnt.getbbox(title, direction="ttb", language="ja")
+        text_bbox = draw.textbbox(
+            (0, 0), title, font=fnt, direction="ttb", language="ja"
+        )
         h = text_bbox[3] - text_bbox[1]
         w = text_bbox[2] - text_bbox[0]
         padding = 2 * dpi / 25.4
@@ -706,7 +710,7 @@ def draw_title(
                 ),
             ]
         draw.rectangle(box, fill=box_color)
-        draw.text(
+        draw.multiline_text(
             # Subtract text_bbox offset since ink != position
             (box[0][0] + padding - text_bbox[0], box[0][1] + padding - text_bbox[1]),
             title,
