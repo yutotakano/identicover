@@ -372,7 +372,9 @@ def create_image(short_title: str | None = None) -> Image.Image:
     title_orientation = random.choice(["horizontal", "vertical"])
     if not can_be_vertically_typeset(short_title):
         title_orientation = "horizontal"
-    box_position = random.choice(["box_position_1", "box_position_2", "box_position_3"])
+    box_position = random.choice(
+        ["box_position_1", "box_position_2", "box_position_3", "box_position_4"]
+    )
 
     draw_title(
         image,
@@ -652,7 +654,7 @@ def draw_title(
                     h + (cover_size[1] - h) * 0.5 + padding,
                 ),
             ]
-        else:
+        elif box_position == "box_position_3":
             # Bottom third
             box = [
                 (
@@ -670,6 +672,24 @@ def draw_title(
                     ),
                 ),
             ]
+        else:
+            # Left aligned, bottom third
+            box = [
+                (
+                    padding,
+                    min(
+                        cover_size[1] - h - 2 * padding,
+                        cover_size[1] * 0.8 - h * 0.5 - padding,
+                    ),
+                ),
+                (
+                    float(cover_size[0]),
+                    min(
+                        cover_size[1],
+                        cover_size[1] * 0.8 + h * 0.5 + padding,
+                    ),
+                ),
+            ]
         draw.rectangle(box, fill=box_color)
         draw.multiline_text(
             # Subtract text_bbox offset since ink != position
@@ -677,7 +697,7 @@ def draw_title(
             title,
             font=fnt,
             fill=text_color,
-            align="center",
+            align="center" if box_position != "box_position_4" else "left",
             direction="ltr",
         )
     else:
@@ -701,7 +721,7 @@ def draw_title(
         padding = 2 * dpi / 25.4
 
         if box_position == "box_position_1":
-            # Right third
+            # Left third
             box = [
                 (
                     cover_size[0] * 0.2 - w * 0.5 - padding,
@@ -724,8 +744,8 @@ def draw_title(
                     h + (cover_size[1] - h) * 0.5 + padding,
                 ),
             ]
-        else:
-            # Left third
+        elif box_position == "box_position_3":
+            # Right third
             box = [
                 (
                     cover_size[0] * 0.8 - w * 0.5 - padding,
@@ -734,6 +754,18 @@ def draw_title(
                 (
                     cover_size[0] * 0.8 + w * 0.5 + padding,
                     h + (cover_size[1] - h) * 0.5 + padding,
+                ),
+            ]
+        else:
+            # Top aligned, left third
+            box = [
+                (
+                    cover_size[0] * 0.2 - w * 0.5 - padding,
+                    cover_size[0] * 0.2 - w * 0.5 - padding,
+                ),
+                (
+                    cover_size[0] * 0.2 + w * 0.5 + padding,
+                    cover_size[0] * 0.2 - w * 0.5 + h + padding,
                 ),
             ]
         draw.rectangle(box, fill=box_color)
