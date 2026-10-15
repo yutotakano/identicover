@@ -7,6 +7,7 @@ import typing
 
 import numpy as np
 from PIL import Image, ImageColor, ImageDraw, ImageFont, features
+import unicodedata
 
 dpi = 72
 cover_size = (math.ceil(105 * dpi / 25.4), math.ceil(148 * dpi / 25.4))
@@ -350,6 +351,8 @@ def create_image(short_title: str | None = None) -> Image.Image:
         return image
 
     title_orientation = random.choice(["horizontal", "vertical"])
+    if not can_be_vertically_typeset(short_title):
+        title_orientation = "horizontal"
     box_position = random.choice(["box_position_1", "box_position_2"])
 
     draw_title(
@@ -524,6 +527,13 @@ def draw_semicircle(
         outline=outline,
         width=outline_width,
     )
+
+
+def can_be_vertically_typeset(text: str) -> bool:
+    for char in text:
+        if unicodedata.east_asian_width(char) not in ("W", "F"):
+            return False
+    return True
 
 
 def get_first_japanese_noun(title: str) -> str | None:
