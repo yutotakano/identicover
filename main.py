@@ -573,48 +573,94 @@ def draw_title(
     box_color = ImageColor.getrgb(
         f"hsl({background_color_hsl[0]}, {max(0, background_color_hsl[1] - 20)}%, {background_color_hsl[2]}%)"
     )
+
+    is_dark = background_color_hsl[2] < 50
+
     draw = ImageDraw.Draw(image, "RGBA")
 
     if orientation == "horizontal":
+        # Measure proportions first with arbitrary size
+        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", 40)
+        text_bbox = fnt.getbbox(title, direction="ltr", language="ja")
+        h_to_w_ratio = (text_bbox[3] - text_bbox[1]) / (text_bbox[2] - text_bbox[0])
+        w = min(cover_size[0] * 0.8, (cover_size[1] * 0.4) / h_to_w_ratio)
+        h = w * h_to_w_ratio
+        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", int(h))
+        padding = 2 * dpi / 25.4
+
         if box_position == "box_position_1":
             # Top third
             box = [
-                (cover_size[0] * 0.1, cover_size[1] * 0.1),
-                (cover_size[0] * 0.9, cover_size[1] * 0.3),
+                (
+                    (cover_size[0] - w) * 0.5 - padding,
+                    cover_size[1] * 0.2 - h * 0.5 - padding,
+                ),
+                (
+                    w + (cover_size[0] - w) * 0.5 + padding,
+                    cover_size[1] * 0.2 + h * 0.5 + padding,
+                ),
             ]
         else:
             # Bottom third
             box = [
-                (cover_size[0] * 0.1, cover_size[1] * 0.7),
-                (cover_size[0] * 0.9, cover_size[1] * 0.9),
+                (
+                    (cover_size[0] - w) * 0.5 - padding,
+                    cover_size[1] * 0.8 - h * 0.5 - padding,
+                ),
+                (
+                    w + (cover_size[0] - w) * 0.5 + padding,
+                    cover_size[1] * 0.8 + h * 0.5 + padding,
+                ),
             ]
         draw.rectangle(box, fill=box_color)
         draw.text(
-            (box[0][0] + 10, box[0][1] + 10),
+            (box[0][0] + padding, box[0][1] + padding),
             title,
-            fill=(0, 0, 0),
-            align="left",
+            font=fnt,
+            fill=(255, 255, 255) if is_dark else (0, 0, 0),
+            align="center",
+            direction="ltr",
         )
     else:
+        # Measure proportions first with arbitrary size
+        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", 40)
+        text_bbox = fnt.getbbox(title, direction="ttb", language="ja")
+        h_to_w_ratio = (text_bbox[3] - text_bbox[1]) / (text_bbox[2] - text_bbox[0])
+        h = min(cover_size[1] * 0.8, (cover_size[0] * 0.2) * h_to_w_ratio)
+        w = h / h_to_w_ratio
+        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", int(w))
+        padding = 2 * dpi / 25.4
+
         if box_position == "box_position_1":
-            # Left third
+            # Right third
             box = [
-                (cover_size[0] * 0.1, cover_size[1] * 0.2),
-                (cover_size[0] * 0.3, cover_size[1] * 0.8),
+                (
+                    cover_size[0] * 0.2 - w * 0.5 - padding,
+                    (cover_size[1] - h) * 0.5 - padding,
+                ),
+                (
+                    cover_size[0] * 0.2 + w * 0.5 + padding,
+                    h + (cover_size[1] - h) * 0.5 + padding,
+                ),
             ]
         else:
             # Center
             box = [
-                (cover_size[0] * 0.4, cover_size[1] * 0.2),
-                (cover_size[0] * 0.6, cover_size[1] * 0.8),
+                (
+                    cover_size[0] * 0.5 - w * 0.5 - padding,
+                    (cover_size[1] - h) * 0.5 - padding,
+                ),
+                (
+                    cover_size[0] * 0.5 + w * 0.5 + padding,
+                    h + (cover_size[1] - h) * 0.5 + padding,
+                ),
             ]
         draw.rectangle(box, fill=box_color)
-        fnt = ImageFont.truetype("/Users/kilo/Library/Fonts/NotoSansJP-Regular.ttf", 40)
         draw.text(
-            (box[0][0] + 10, box[0][1] + 10),
+            (box[0][0] + padding, box[0][1] + padding),
             title,
             font=fnt,
-            fill=(0, 0, 0),
+            fill=(255, 255, 255) if is_dark else (0, 0, 0),
             align="left",
             direction="ttb",
         )
