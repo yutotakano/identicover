@@ -372,7 +372,7 @@ def create_image(short_title: str | None = None) -> Image.Image:
     title_orientation = random.choice(["horizontal", "vertical"])
     if not can_be_vertically_typeset(short_title):
         title_orientation = "horizontal"
-    box_position = random.choice(["box_position_1", "box_position_2"])
+    box_position = random.choice(["box_position_1", "box_position_2", "box_position_3"])
 
     draw_title(
         image,
@@ -640,6 +640,18 @@ def draw_title(
                     max(h + 2 * padding, cover_size[1] * 0.2 + h * 0.5 + padding),
                 ),
             ]
+        elif box_position == "box_position_2":
+            # Center
+            box = [
+                (
+                    (cover_size[0] - w) * 0.5 - padding,
+                    (cover_size[1] - h) * 0.5 - padding,
+                ),
+                (
+                    w + (cover_size[0] - w) * 0.5 + padding,
+                    h + (cover_size[1] - h) * 0.5 + padding,
+                ),
+            ]
         else:
             # Bottom third
             box = [
@@ -700,7 +712,7 @@ def draw_title(
                     h + (cover_size[1] - h) * 0.5 + padding,
                 ),
             ]
-        else:
+        elif box_position == "box_position_2":
             # Center
             box = [
                 (
@@ -709,6 +721,18 @@ def draw_title(
                 ),
                 (
                     cover_size[0] * 0.5 + w * 0.5 + padding,
+                    h + (cover_size[1] - h) * 0.5 + padding,
+                ),
+            ]
+        else:
+            # Left third
+            box = [
+                (
+                    cover_size[0] * 0.8 - w * 0.5 - padding,
+                    (cover_size[1] - h) * 0.5 - padding,
+                ),
+                (
+                    cover_size[0] * 0.8 + w * 0.5 + padding,
                     h + (cover_size[1] - h) * 0.5 + padding,
                 ),
             ]
