@@ -370,7 +370,7 @@ def create_image(short_title: str | None = None) -> Image.Image:
         return image
 
     title_orientation = random.choice(["horizontal", "vertical"])
-    if not can_be_vertically_typeset(short_title):
+    if not contains_only_japanese(short_title):
         title_orientation = "horizontal"
     box_position = random.choice(
         ["box_position_1", "box_position_2", "box_position_3", "box_position_4"]
@@ -550,16 +550,23 @@ def draw_semicircle(
     )
 
 
-def can_be_vertically_typeset(text: str) -> bool:
+def contains_only_japanese(text: str) -> bool:
     for char in text:
         if unicodedata.east_asian_width(char) not in ("W", "F"):
             return False
     return True
 
 
+def contains_japanese(text: str) -> bool:
+    for char in text:
+        if unicodedata.east_asian_width(char) in ("W", "F"):
+            return True
+    return False
+
+
 def get_first_japanese_noun(title: str) -> str | None:
     # If no japanese text, use English
-    can_use_nagisa = can_be_vertically_typeset(title)
+    can_use_nagisa = contains_only_japanese(title)
 
     if not can_use_nagisa:
         return title
@@ -599,7 +606,7 @@ def draw_title(
 
     font_path = (
         "./assets/HinaMincho-Regular.ttf"
-        if can_be_vertically_typeset(title)
+        if contains_japanese(title)
         else "./assets/DINish-Bold.ttf"
     )
 
@@ -632,7 +639,7 @@ def draw_title(
         )
         h = text_bbox[3] - text_bbox[1]
         w = text_bbox[2] - text_bbox[0]
-        padding = 2 * dpi / 25.4 if can_be_vertically_typeset(title) else 4 * dpi / 25.4
+        padding = 2 * dpi / 25.4 if contains_japanese(title) else 4 * dpi / 25.4
 
         if box_position == "box_position_1":
             # Top third
