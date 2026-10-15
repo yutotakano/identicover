@@ -7,6 +7,7 @@ import typing
 import unicodedata
 
 import numpy as np
+import wn
 from PIL import Image, ImageColor, ImageDraw, ImageFont, features
 
 dpi = 72
@@ -15,12 +16,29 @@ cover_size = (math.ceil(105 * dpi / 25.4), math.ceil(148 * dpi / 25.4))
 
 def main():
     # Generate exemplerary images
+    titles = [
+        "ホノルル",
+        "The widowhood of Queen Victoria",
+        "化物屋敷でソロアサシンになりそこねた私がガッツポーズを決めるまで",
+        "目覚めたら横浜伊勢佐木町にいた。",
+        "【連載版】【書籍化】私生児の言葉",
+        "コメット・Ｘ",
+        "或る牛乳工場の思い出",
+        "（連載はじめました）身代り金之助",
+        "『鉄砲左平次』序にも一つ",
+        "神埼歓迎会に於ける演説（五月二十五日於神埼記念舘）",
+        "ドレフュー大疑獄とエミール・ゾーラ",
+        "菊　食物としての",
+        "Ｒｅ：Ｆｗｄ：二十五年間の文人の社会的地位の進歩",
+        "And Then There Were None",
+    ]
+
     image = Image.new(
-        "RGB", (cover_size[0] * 6, cover_size[1] * 2), color=(255, 255, 255)
+        "RGB", (cover_size[0] * 7, cover_size[1] * 2), color=(255, 255, 255)
     )
-    for i in range(6):
+    for i in range(7):
         for j in range(2):
-            sub_image = create_image()
+            sub_image = create_image(get_first_japanese_noun(titles[i * 2 + j]))
             image.paste(sub_image, (i * cover_size[0], j * cover_size[1]))
     image.show()
 
@@ -538,6 +556,28 @@ def can_be_vertically_typeset(text: str) -> bool:
 
 
 def get_first_japanese_noun(title: str) -> str | None:
+    # If no japanese text, use English
+    can_use_nagisa = can_be_vertically_typeset(title)
+
+    if not can_use_nagisa:
+        # Try to extract first set of english nouns
+        if not len(wn.lexicons()):
+            wn.download("ewn:2020")
+        return (
+            " ".join(
+                word[0].capitalize()
+                for word in itertools.takewhile(
+                    lambda w: w[1] and w[1][0].pos == "n",
+                    itertools.dropwhile(
+                        lambda w: not w[1] or w[1][0].pos != "n",
+                        zip(title.split(), [wn.words(w) for w in title.split()]),
+                    ),
+                )
+            )
+            # Fallback: allow full english title
+            or title
+        )
+
     try:
         import nagisa  # type: ignore
     except ImportError:
