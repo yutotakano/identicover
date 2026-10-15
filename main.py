@@ -14,11 +14,12 @@ cover_size = (math.ceil(105 * dpi / 25.4), math.ceil(148 * dpi / 25.4))
 
 
 def main():
+    # Generate exemplerary images
     image = Image.new(
-        "RGB", (cover_size[0] * 4, cover_size[1] * 4), color=(255, 255, 255)
+        "RGB", (cover_size[0] * 6, cover_size[1] * 2), color=(255, 255, 255)
     )
-    for i in range(4):
-        for j in range(4):
+    for i in range(6):
+        for j in range(2):
             sub_image = create_image()
             image.paste(sub_image, (i * cover_size[0], j * cover_size[1]))
     image.show()
