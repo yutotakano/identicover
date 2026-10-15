@@ -597,6 +597,12 @@ def draw_title(
         print("raqm not available, skipping text")
         return
 
+    font_path = (
+        "./assets/HinaMincho-Regular.ttf"
+        if can_be_vertically_typeset(title)
+        else "./assets/DINish-Bold.ttf"
+    )
+
     title = textwrap.fill(title, width=15)
 
     box_color = ImageColor.getrgb(
@@ -612,23 +618,21 @@ def draw_title(
 
     if orientation == "horizontal":
         # Measure proportions first with arbitrary size
-        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", 40)
+        fnt = ImageFont.truetype(font_path, 40)
         text_bbox = draw.textbbox(
             (0, 0), title, font=fnt, direction="ltr", language="ja"
         )
         h_to_w_ratio = (text_bbox[3] - text_bbox[1]) / (text_bbox[2] - text_bbox[0])
         w = min(cover_size[0] * 0.8, (cover_size[1] * 0.4) / h_to_w_ratio)
         h = w * h_to_w_ratio
-        fnt = ImageFont.truetype(
-            "./assets/HinaMincho-Regular.ttf", h / len(title.splitlines())
-        )
+        fnt = ImageFont.truetype(font_path, h / len(title.splitlines()))
         # remeasure bbox for accuracy since font size != guaranteed text height
         text_bbox = draw.textbbox(
             (0, 0), title, font=fnt, direction="ltr", language="ja"
         )
         h = text_bbox[3] - text_bbox[1]
         w = text_bbox[2] - text_bbox[0]
-        padding = 2 * dpi / 25.4
+        padding = 2 * dpi / 25.4 if can_be_vertically_typeset(title) else 4 * dpi / 25.4
 
         if box_position == "box_position_1":
             # Top third
@@ -702,16 +706,14 @@ def draw_title(
         )
     else:
         # Measure proportions first with arbitrary size
-        fnt = ImageFont.truetype("./assets/HinaMincho-Regular.ttf", 40)
+        fnt = ImageFont.truetype(font_path, 40)
         text_bbox = draw.textbbox(
             (0, 0), title, font=fnt, direction="ttb", language="ja"
         )
         h_to_w_ratio = (text_bbox[3] - text_bbox[1]) / (text_bbox[2] - text_bbox[0])
         h = min(cover_size[1] * 0.8, (cover_size[0] * 0.2) * h_to_w_ratio)
         w = h / h_to_w_ratio
-        fnt = ImageFont.truetype(
-            "./assets/HinaMincho-Regular.ttf", w / len(title.splitlines())
-        )
+        fnt = ImageFont.truetype(font_path, w / len(title.splitlines()))
         # remeasure bbox for accuracy since font size != guaranteed text width
         text_bbox = draw.textbbox(
             (0, 0), title, font=fnt, direction="ttb", language="ja"
